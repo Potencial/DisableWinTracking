@@ -1,9 +1,9 @@
 # DisableWinTracking (Fork)
 
-Living fork of the original archived project: <https://github.com/10se1ucgo/DisableWinTracking>.
+Living fork of the original archived project: <https://github.com/10se1ucgo/DisableWinTracking>
 
 Current upstream repository: <https://github.com/Potencial/DisableWinTracking>
-Current app version: `v3.2.6`
+Current app version: `v3.3.0`
 
 ![screenshot](web/dwt-screenshot.png)
 
@@ -15,7 +15,7 @@ Current app version: `v3.2.6`
 
 ### Platform and Python Support
 
-- Target OS: Windows 10 (some functionality may also work on Windows 11).
+- Target OS: Windows 10 (some behavior may also work on Windows 11).
 - Supported Python versions for source/runtime validation:
 - Python `3.12`
 - Python `3.14`
@@ -36,12 +36,6 @@ py -3.12 -m pip install -r requirements.lock.py312.txt
 py -3.14 -m pip install -r requirements.lock.py314.txt
 ```
 
-Install editable runtime base:
-
-```powershell
-py -3.14 -m pip install -r requirements.txt
-```
-
 ### Running the App
 
 Run GUI (as Administrator):
@@ -50,50 +44,69 @@ Run GUI (as Administrator):
 py -3.14 dwt.py
 ```
 
-Silent mode:
+Apply the balanced silent profile:
 
 ```powershell
 py -3.14 dwt.py -silent
 ```
 
+Revert the silent profile:
+
+```powershell
+py -3.14 dwt.py -silent-revert
+```
+
+### GUI Workflow (v3.3.0)
+
+The GUI now uses a categorized layout with presets:
+
+- Tabs:
+- `Core` (legacy controls)
+- `Privacy+` (new policy-based controls)
+- `Network` (HOSTS/IP blocking)
+- Presets:
+- `Balanced` (recommended)
+- `Custom`
+- Before execution, the app shows a confirmation summary with risk labels (`Low` / `Medium`).
+
 ### Language Selection (UI)
 
 - Available languages: `English`, `Espanol`.
-- Open `File -> Settings` and choose the language in the `Language` selector.
-- Language preference is persisted for next runs.
-- After changing language, restart the app to fully refresh all visible labels.
+- Open `File -> Settings` and choose the language in `Language`.
+- Language preference is persisted.
+- Restart is recommended after changing language to refresh every label.
 
-`-silent` currently applies these actions:
+### Features
 
-- Clear DiagTrack log (`clear_diagtrack`)
-- Stop telemetry services (`dmwappushsvc`, `DiagTrack`)
-- Set services to privacy state (`Start=4`)
-- Set telemetry policy (`AllowTelemetry=0`)
-- Apply WifiSense registry settings
-- Apply OneDrive uninstall/privacy settings
+Core features:
 
-`-silent` currently does **not** automatically apply:
+- Services (`Disable` / `Delete`) + startup policy
+- Clear DiagTrack log
+- Telemetry policy
+- HOSTS domain blocking (+ extra list)
+- Firewall IP blocking
+- WifiSense policy
+- OneDrive privacy/uninstall flow
+- Xbox DVR policy
 
-- HOSTS domain blocking options
-- IP blocking firewall rules
-- Xbox DVR change
-- Windows Defender collection option (disabled in UI)
+Privacy+ features (new):
 
-### Features and Current Behavior
+- Disable Advertising ID
+- Disable Activity History feed/publish/upload
+- Disable cross-device clipboard
+- Disable input personalization
+- Disable tailored experiences with diagnostic data
+- Disable feedback notifications
 
-- Services:
-- Service Method `Disable`: stops services and applies registry startup state.
-- Service Method `Delete`: removes services; also writes service startup state keys when available.
-- Mode `Privacy`: applies privacy settings.
-- Mode `Revert`: reverts supported settings.
-- Telemetry: writes `AllowTelemetry` under policy registry path.
-- HOSTS blocking: uses selected domain lists from settings dialog.
-- Extra HOSTS blocking: optional additional domains.
-- IP blocking: creates/removes firewall rules per selected IPs.
-- Windows Defender collection: present in UI but disabled by design.
-- WifiSense: registry-based toggles.
-- OneDrive: registry toggles + `OneDriveSetup.exe /uninstall` or `/install` depending on mode.
-- Xbox DVR: registry-based enable/disable.
+### Silent Mode Scope
+
+`-silent` now applies `Core + Privacy+ (Balanced)` by default:
+
+- Includes: services policy, telemetry, WifiSense, OneDrive, Xbox DVR, and all Privacy+ controls
+- Includes setup actions: clear DiagTrack + stop tracking services
+- Excludes by design: HOSTS domain blocking and firewall IP blocking
+
+`-silent-revert` reverts the same policy scope (excluding non-reversible DiagTrack clear action).
 
 ### Validation and CI
 
@@ -104,16 +117,22 @@ Local smoke validation script:
 ./scripts/windows_smoke.ps1 -PythonVersion 3.14
 ```
 
-From WSL, call Windows PowerShell:
+From WSL:
 
 ```bash
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\windows_smoke.ps1 -PythonVersion 3.14
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Set-Location 'D:\DisableWinTracking'; .\scripts\windows_smoke.ps1 -PythonVersion 3.14"
+```
+
+Unit tests:
+
+```powershell
+python -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 CI workflow:
 
 - `.github/workflows/windows-smoke.yml`
-- Executes smoke validations on Python `3.12` and `3.14`.
+- Runs smoke validation on Python `3.12` and `3.14`.
 
 ### Build and Release Artifacts
 
@@ -130,15 +149,15 @@ Expected outputs:
 
 ### Historical Notes
 
-- This fork preserved the NCSI fix that avoids adding these entries to HOSTS:
+- This fork preserves the NCSI fix and avoids adding these HOSTS entries:
 - `0.0.0.0 msftncsi.com`
 - `0.0.0.0 www.msftncsi.com`
 
 ### Cyrillic Path Warning
 
-This program may fail when executed from paths containing Cyrillic characters. Run from a non-Cyrillic path (for example `C:\`).
+The app may fail when executed from paths containing Cyrillic characters. Use a non-Cyrillic path (for example `C:\`).
 
-## Español
+## Espanol
 
 ### Descarga
 
@@ -146,8 +165,8 @@ This program may fail when executed from paths containing Cyrillic characters. R
 
 ### Plataforma y soporte de Python
 
-- SO objetivo: Windows 10 (parte de la funcionalidad también puede funcionar en Windows 11).
-- Versiones soportadas para ejecución/validación desde código fuente:
+- SO objetivo: Windows 10 (parte del comportamiento puede funcionar en Windows 11).
+- Versiones soportadas para validacion de runtime:
 - Python `3.12`
 - Python `3.14`
 
@@ -157,94 +176,112 @@ Modelo actual de dependencias:
 
 - `requirements.lock.py312.txt`: entorno reproducible para Python 3.12
 - `requirements.lock.py314.txt`: entorno reproducible para Python 3.14
-- `requirements.txt`: base editable de runtime (rangos)
-- `requirements.build.txt`: herramientas de build (`PyInstaller` y hooks)
+- `requirements.txt`: base editable de runtime
+- `requirements.build.txt`: tooling de build (`PyInstaller`)
 
-Instalación recomendada (locks):
+Instalacion recomendada:
 
 ```powershell
 py -3.12 -m pip install -r requirements.lock.py312.txt
 py -3.14 -m pip install -r requirements.lock.py314.txt
 ```
 
-Instalación base editable:
+### Ejecucion
 
-```powershell
-py -3.14 -m pip install -r requirements.txt
-```
-
-### Ejecución
-
-Modo gráfico (como Administrador):
+Modo GUI (Administrador):
 
 ```powershell
 py -3.14 dwt.py
 ```
 
-Modo silencioso:
+Aplicar perfil silencioso balanceado:
 
 ```powershell
 py -3.14 dwt.py -silent
 ```
 
-### Seleccion de idioma (UI)
+Revertir perfil silencioso:
 
-- Idiomas disponibles: `English`, `Espanol`.
-- Abre `Archivo -> Configuracion` y selecciona el idioma en `Idioma`.
-- La preferencia queda guardada para las siguientes ejecuciones.
-- Despues de cambiar idioma, reinicia la app para refrescar todos los textos visibles.
+```powershell
+py -3.14 dwt.py -silent-revert
+```
 
-Actualmente `-silent` aplica:
+### Flujo GUI (v3.3.0)
 
-- Limpieza de DiagTrack (`clear_diagtrack`)
-- Detención de servicios de telemetría (`dmwappushsvc`, `DiagTrack`)
-- Estado de privacidad de servicios (`Start=4`)
-- Política de telemetría (`AllowTelemetry=0`)
-- Cambios de WifiSense
-- Cambios de OneDrive (privacidad/desinstalación)
+La GUI ahora se organiza por categorias y presets:
 
-Actualmente `-silent` **no** aplica automáticamente:
+- Pestañas:
+- `Core` (controles clasicos)
+- `Privacidad+` (controles nuevos por politicas)
+- `Red` (bloqueo HOSTS/IP)
+- Presets:
+- `Balanceado` (recomendado)
+- `Personalizado`
+- Antes de ejecutar se muestra un resumen de acciones con nivel de riesgo (`Bajo` / `Medio`).
 
-- Bloqueo de dominios en HOSTS
-- Bloqueo de IPs por firewall
-- Cambio de Xbox DVR
-- Opción de Windows Defender collection (deshabilitada en UI)
+### Seleccion de idioma
 
-### Funcionalidades y comportamiento actual
+- Idiomas: `English`, `Espanol`.
+- Ir a `Archivo -> Configuracion` y elegir idioma.
+- La preferencia queda guardada.
+- Se recomienda reiniciar para refrescar todas las etiquetas.
 
-- Servicios:
-- Método `Disable`: detiene servicios y aplica estado de inicio en registro.
-- Método `Delete`: elimina servicios y escribe claves de inicio cuando existan.
-- Modo `Privacy`: aplica cambios de privacidad.
-- Modo `Revert`: revierte cambios soportados.
-- Telemetría: escritura en clave de política `AllowTelemetry`.
-- HOSTS: usa las listas seleccionadas en el diálogo de configuración.
-- HOSTS extra: conjunto adicional opcional.
-- Bloqueo de IP: reglas de firewall por IP seleccionada.
-- Windows Defender collection: visible pero deshabilitado por diseño.
-- WifiSense: cambios por registro.
-- OneDrive: cambios por registro + ejecución de `OneDriveSetup.exe`.
-- Xbox DVR: cambios por registro.
+### Funcionalidades
 
-### Validación y CI
+Core:
 
-Script local de validación:
+- Servicios (`Disable` / `Delete`) + politica de inicio
+- Limpieza de log DiagTrack
+- Politica de telemetria
+- Bloqueo de dominios HOSTS (+ lista extra)
+- Bloqueo de IP por firewall
+- Politica de WifiSense
+- Flujo de privacidad/desinstalacion de OneDrive
+- Politica de Xbox DVR
+
+Privacidad+ (nuevo):
+
+- Deshabilitar Advertising ID
+- Deshabilitar Activity History (feed/publicacion/subida)
+- Deshabilitar portapapeles entre dispositivos
+- Deshabilitar personalizacion de entrada
+- Deshabilitar experiencias personalizadas con datos de diagnostico
+- Deshabilitar notificaciones de feedback
+
+### Alcance de modo silencioso
+
+`-silent` ahora aplica `Core + Privacidad+ (Balanceado)`:
+
+- Incluye: politica de servicios, telemetria, WifiSense, OneDrive, Xbox DVR y todos los controles Privacidad+
+- Incluye acciones de preparacion: limpiar DiagTrack y detener servicios de rastreo
+- Excluye por diseno: bloqueo HOSTS y bloqueo IP por firewall
+
+`-silent-revert` revierte ese mismo alcance (excepto limpieza de DiagTrack, que no es reversible automaticamente).
+
+### Validacion y CI
+
+Script smoke local:
 
 ```powershell
 ./scripts/windows_smoke.ps1 -PythonVersion 3.12
 ./scripts/windows_smoke.ps1 -PythonVersion 3.14
 ```
 
-Desde WSL usando PowerShell de Windows:
+Desde WSL:
 
 ```bash
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\windows_smoke.ps1 -PythonVersion 3.14
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Set-Location 'D:\DisableWinTracking'; .\scripts\windows_smoke.ps1 -PythonVersion 3.14"
 ```
 
-Workflow de CI:
+Tests unitarios:
+
+```powershell
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Workflow CI:
 
 - `.github/workflows/windows-smoke.yml`
-- Ejecuta validación en Python `3.12` y `3.14`.
 
 ### Build y artefactos
 
@@ -259,16 +296,16 @@ Salidas esperadas:
 - `dist/DisableWinTracking.exe`
 - `public/dwt-<version>-<pyTag>-win_amd64.zip`
 
-### Nota histórica
+### Nota historica
 
-Este fork conserva la corrección de NCSI para no añadir en HOSTS:
+Este fork conserva la correccion de NCSI y evita agregar en HOSTS:
 
 - `0.0.0.0 msftncsi.com`
 - `0.0.0.0 www.msftncsi.com`
 
-### Advertencia de rutas con caracteres cirílicos
+### Advertencia de rutas con caracteres cirilicos
 
-La aplicación puede fallar si se ejecuta desde rutas con caracteres cirílicos. Ejecutar desde una ruta sin cirílico (por ejemplo `C:\`).
+La app puede fallar si se ejecuta desde rutas con caracteres cirilicos. Usar una ruta sin cirilico (por ejemplo `C:\`).
 
 ## License
 

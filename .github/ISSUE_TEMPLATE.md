@@ -17,11 +17,19 @@
 - Execution mode:
 - [ ] GUI
 - [ ] `-silent`
+- [ ] `-silent-revert`
+
+- Preset (GUI):
+- [ ] Balanced
+- [ ] Custom
+- [ ] N/A
+
 - Selected options (GUI):
 - Mode selected:
 - [ ] Privacy
 - [ ] Revert
 - [ ] N/A
+
 - Service Method selected:
 - [ ] Disable
 - [ ] Delete
@@ -47,8 +55,10 @@ Describe what happened instead.
 - [ ] Passed
 - [ ] Failed
 - [ ] Not run
+
 - Python version used for smoke:
-- Unit tests (`tests/test_dwt_util.py`) status:
+
+- Unit tests status (`python -m unittest discover -s tests -p "test_*.py" -v`):
 - [ ] Passed
 - [ ] Failed
 - [ ] Not run

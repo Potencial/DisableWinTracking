@@ -4,28 +4,34 @@
 
 ### Scope
 
-This document defines the minimum technical and documentation requirements for contributions.
-It intentionally focuses on code quality, validation, and documentation consistency.
+This document defines minimum technical requirements for contributions to DisableWinTracking.
 
 ### Change Conventions
 
 - Keep changes focused and atomic.
-- Prefer explicit, descriptive commit messages.
-- Do not mix unrelated refactors with functional fixes.
+- Use explicit commit messages.
+- Do not mix unrelated refactors with behavioral changes.
 - If behavior changes, update docs in the same change set.
 
-### Local Validation Requirements
+### Required Local Validation
 
-Before opening a PR, run at least:
+Run at least:
 
 ```powershell
-python -m py_compile dwt.py dwt_util.py dwt_about.py
-python -m unittest tests.test_dwt_util -v
+python -m py_compile dwt.py dwt_util.py dwt_about.py dwt_i18n.py
+python -m unittest discover -s tests -p "test_*.py" -v
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_smoke.ps1 -PythonVersion 3.12
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_smoke.ps1 -PythonVersion 3.14
 ```
 
-### Build Validation (when packaging/build logic changes)
+Validate CLI behavior when touching silent flow:
+
+```powershell
+python dwt.py -silent
+python dwt.py -silent-revert
+```
+
+### Build Validation (if packaging/build changed)
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
@@ -38,46 +44,51 @@ Expected outputs:
 
 ### Documentation Policy
 
-Any functional change that affects behavior, setup, validation, build, or troubleshooting must include documentation updates in the same PR, at minimum:
+Any functional change affecting behavior, setup, validation, build, or troubleshooting must update docs in the same PR, at least:
 
 - `README.md`
-- `.github/ISSUE_TEMPLATE.md` (if issue reproduction data needs change)
-- `CONTRIBUTING.md` (if contributor workflow changes)
+- `.github/ISSUE_TEMPLATE.md` (if issue diagnostics changed)
+- `CONTRIBUTING.md` (if contributor workflow changed)
 
 ### PR Quality Checklist
 
-- [ ] No break in declared runtime compatibility (Python 3.12/3.14).
-- [ ] Commands documented in README exist and were validated.
-- [ ] Tests/smoke checks run and results are reflected in PR notes.
-- [ ] Documentation and code are consistent.
-- [ ] No unrelated generated artifacts included unless necessary.
+- [ ] No break in declared compatibility (Python 3.12/3.14).
+- [ ] `-silent` and `-silent-revert` behavior validated if touched.
+- [ ] Tests and smoke checks executed and reported.
+- [ ] Docs and code are consistent.
 
-## Español
+## Espanol
 
 ### Alcance
 
-Este documento define los requisitos mínimos técnicos y documentales para contribuir.
-Está centrado en calidad de cambios, validación y consistencia de documentación.
+Este documento define requisitos tecnicos minimos para contribuciones a DisableWinTracking.
 
 ### Convenciones de cambios
 
-- Mantener cambios acotados y atómicos.
-- Usar mensajes de commit claros y descriptivos.
-- No mezclar refactors no relacionados con fixes funcionales.
-- Si cambia el comportamiento, actualizar documentación en el mismo set de cambios.
+- Mantener cambios acotados y atomicos.
+- Usar mensajes de commit explicitos.
+- No mezclar refactors no relacionados con cambios de comportamiento.
+- Si cambia el comportamiento, actualizar documentacion en el mismo set de cambios.
 
-### Validación local requerida
+### Validacion local requerida
 
-Antes de abrir un PR, ejecutar como mínimo:
+Ejecutar como minimo:
 
 ```powershell
-python -m py_compile dwt.py dwt_util.py dwt_about.py
-python -m unittest tests.test_dwt_util -v
+python -m py_compile dwt.py dwt_util.py dwt_about.py dwt_i18n.py
+python -m unittest discover -s tests -p "test_*.py" -v
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_smoke.ps1 -PythonVersion 3.12
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows_smoke.ps1 -PythonVersion 3.14
 ```
 
-### Validación de build (cuando cambie packaging/build)
+Validar CLI cuando se toque flujo silencioso:
+
+```powershell
+python dwt.py -silent
+python dwt.py -silent-revert
+```
+
+### Validacion de build (si cambia packaging/build)
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\build.ps1
@@ -88,18 +99,17 @@ Salidas esperadas:
 - `dist/DisableWinTracking.exe`
 - `public/dwt-<version>-<pyTag>-win_amd64.zip`
 
-### Política de documentación
+### Politica de documentacion
 
-Todo cambio funcional que impacte comportamiento, setup, validación, build o troubleshooting debe incluir actualización documental en el mismo PR, al menos en:
+Todo cambio funcional que impacte comportamiento, setup, validacion, build o troubleshooting debe actualizar docs en el mismo PR, al menos:
 
 - `README.md`
-- `.github/ISSUE_TEMPLATE.md` (si cambian datos necesarios para reproducir issues)
-- `CONTRIBUTING.md` (si cambia el flujo de contribución)
+- `.github/ISSUE_TEMPLATE.md` (si cambian datos para reproducir issues)
+- `CONTRIBUTING.md` (si cambia el flujo de contribucion)
 
 ### Checklist de calidad para PR
 
 - [ ] No romper compatibilidad declarada (Python 3.12/3.14).
-- [ ] Los comandos documentados en README existen y se validaron.
-- [ ] Tests/smoke ejecutados y resultados reportados en notas del PR.
-- [ ] Coherencia entre documentación y código.
-- [ ] No incluir artefactos generados no relacionados, salvo necesidad explícita.
+- [ ] Validar comportamiento de `-silent` y `-silent-revert` cuando aplique.
+- [ ] Ejecutar tests y smoke checks y reportar resultados.
+- [ ] Coherencia entre codigo y documentacion.
